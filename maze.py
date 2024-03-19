@@ -29,6 +29,12 @@ class Maze:
         self._cells[i][j].draw()
         self.animate()
 
+    def break_entrance_and_exit(self):
+        self._cells[0][0].has_top_Wall = False
+        self.draw_cell(0, 0)
+        self._cells[-1][-1].has_bottom_Wall = False 
+        self.draw_cell(self.num_rows - 1, self.num_cols - 1)
+
     def animate(self):
         if self.win is None:
             return
