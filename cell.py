@@ -3,7 +3,7 @@ from line import Line
 from graphics import Window
 
 class Cell:
-    def __init__(self, x1, y1, x2, y2, win, has_left_Wall = True
+    def __init__(self, x1, y1, x2, y2, win = None, has_left_Wall = True
                  , has_right_Wall = True, has_top_Wall = True
                  , has_bottom_Wall = True ) -> None:
         self.__x1 = x1  # top left x
@@ -18,6 +18,8 @@ class Cell:
         self.has_bottom_Wall = has_bottom_Wall
 
     def draw(self):
+        if self.__win is None:
+            return
         top_left = Point(self.__x1, self.__y1)
         top_right = Point(self.__x2, self.__y1)
         bottom_left = Point(self.__x1, self.__y2)
@@ -32,6 +34,8 @@ class Cell:
             self.__win.draw_line(Line(bottom_left, bottom_right), "red")
 
     def draw_move(self, to_cell, undo = False):
+        if self.__win is None:
+            return
         color = "grey" if undo else "red"
         start_point = Point((self.__x1 + self.__x2) // 2, (self.__y1 + self.__y2) // 2 )
         end_point = Point((to_cell.__x1 + to_cell.__x2) // 2, (to_cell.__y1 + to_cell.__y2) // 2 )
