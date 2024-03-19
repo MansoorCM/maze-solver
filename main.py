@@ -2,21 +2,17 @@ from graphics import Window
 from point import Point
 from line import Line
 from cell import Cell
+from maze import Maze
 
 def main():
-    win = Window(800, 600)
+    screen_x, screen_y = 800, 600
+    margin = 50
+    num_rows, num_cols = 16, 12
+    cell_size_x = ( screen_x - 2 * margin ) // num_rows
+    cell_size_y = ( screen_y - 2 * margin ) // num_cols
+    win = Window(screen_x, screen_y)
     
-    # draw sample line
-    p1, p2 = Point(1, 1), Point(300, 400)
-    line = Line(p1, p2)
-    win.draw_line(line, "red")
-    
-    # draw sample cell
-    cell = Cell(100, 100, 300, 400, win)
-    cell.draw()
-    cell2 = Cell(350, 100, 550, 400, win)
-    cell2.draw()
-    cell.draw_move(cell2, True)
+    maze = Maze(margin, margin, num_rows, num_cols, cell_size_x, cell_size_y, win)
     win.wait_for_close()
-
+    
 main()
