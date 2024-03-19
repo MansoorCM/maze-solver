@@ -12,10 +12,11 @@ class Cell:
         self.__x2 = x2  # bottom right y
         self.__y2 = y2
         self.__win = win
-        self.has_left_wall = has_left_Wall
+        self.has_left_Wall = has_left_Wall
         self.has_right_Wall = has_right_Wall
         self.has_top_Wall = has_top_Wall
         self.has_bottom_Wall = has_bottom_Wall
+        self.visited = False
 
     def draw(self):
         if self.__win is None:
@@ -24,7 +25,7 @@ class Cell:
         top_right = Point(self.__x2, self.__y1)
         bottom_left = Point(self.__x1, self.__y2)
         bottom_right = Point(self.__x2, self.__y2)
-        if self.has_left_wall:
+        if self.has_left_Wall:
             self.__win.draw_line(Line(top_left, bottom_left), "red")
         else:
             self.__win.draw_line(Line(top_left, bottom_left), "white")
