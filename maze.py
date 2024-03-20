@@ -18,7 +18,8 @@ class Maze:
         for i in range(self.num_rows):
             self._cells.append([])
             for j in range(self.num_cols):
-                x1, y1 = self.x1 + i * self.cell_size_x, self.y1 + j * self.cell_size_y
+                # x is horizontal (calculated using j), y is vertical (calculated using i)
+                x1, y1 = self.x1 + j * self.cell_size_x, self.y1 + i * self.cell_size_y
                 x2, y2 = x1 + self.cell_size_x, y1 + self.cell_size_y
                 self._cells[-1].append(Cell(x1, y1, x2, y2, self.win))
 
@@ -30,6 +31,10 @@ class Maze:
         self._cells[i][j].draw()
         self.animate()
 
+    def draw_move_cell(self, i, j, r, c, undo = False):
+        self._cells[i][j].draw_move(self._cells[r][c], undo)
+        self.animate()
+
     def break_entrance_and_exit(self):
         self._cells[0][0].has_top_Wall = False
         self.draw_cell(0, 0)
@@ -38,27 +43,53 @@ class Maze:
 
     def break_wall_r(self, i, j):
         self._cells[i][j].visited = True
-        nextCells = []
-        self.add_cell(nextCells, i - 1, j)
-        self.add_cell(nextCells, i + 1, j)
-        self.add_cell(nextCells, i, j - 1)
-        self.add_cell(nextCells, i, j + 1)
+        nextCells = [[i - 1, j], [i + 1, j], [i, j - 1], [i, j + 1]]
         
         while nextCells:
             idx = random.randint(0, len(nextCells) - 1)
             nextCells[idx], nextCells[-1] = nextCells[-1], nextCells[idx]
             r, c = nextCells.pop()
-            if not self._cells[r][c].visited:
-                self.break_wall_between_two_adjacent_cells(i, j, r, c)
+            if self.is_valid_cell(r, c):
+                self.__break_wall_between_two_adjacent_cells(i, j, r, c)
                 self.break_wall_r(r, c)
 
         self.draw_cell(i, j)
 
-    def add_cell(self, cells, i, j):
-        if i >= 0 and i < self.num_rows and j >= 0 and j < self.num_cols and not self._cells[i][j].visited:
-            cells.append([i, j])
+    def solve(self):
+        return self.solve_r(0, 0)
 
-    def break_wall_between_two_adjacent_cells(self, i, j, r, c):    # moving from (i, j) to (r, c)
+    def solve_r(self, i, j):
+        if i == self.num_rows - 1 and j == self.num_cols - 1:
+            return True
+        self._cells[i][j].visited = True
+        neighbors = [[i - 1, j], [i + 1, j], [i, j - 1], [i, j + 1]]
+        for r, c in neighbors:
+            if self.can_move_to_cell(i, j, r, c):
+                self.draw_move_cell(i, j, r, c)
+                if self.solve_r(r, c):
+                    return True
+                self.draw_move_cell(r, c, i, j, undo = True)    # backtrack.
+        
+        self._cells[i][j].visited = False
+        return False
+
+    def can_move_to_cell(self, i, j, r, c):
+        if not self.is_valid_cell(r, c):
+            return False
+        if i + 1 == r:  # down
+            return not self._cells[i][j].has_bottom_Wall and not self._cells[r][c].has_top_Wall
+        elif i == r + 1: # up
+            return not self._cells[i][j].has_top_Wall and not self._cells[r][c].has_bottom_Wall
+        elif j == c + 1: # left
+            return not self._cells[i][j].has_left_Wall and not self._cells[r][c].has_right_Wall
+        else:   # right
+            return not self._cells[i][j].has_right_Wall and not self._cells[r][c].has_left_Wall
+
+    def is_valid_cell(self, r, c):
+        return r >= 0 and c >= 0 and r < self.num_rows and c < self.num_cols and not self._cells[r][c].visited
+
+    # assumes (i, j) and (r, c) are adjacent.
+    def __break_wall_between_two_adjacent_cells(self, i, j, r, c):    # moving from (i, j) to (r, c)
         if i + 1 == r:  # down
             self._cells[i][j].has_bottom_Wall = False
             self._cells[r][c].has_top_Wall = False
@@ -71,7 +102,7 @@ class Maze:
         else:   # right
             self._cells[i][j].has_right_Wall = False
             self._cells[r][c].has_left_Wall = False
-
+            
     def reset_cells_visited(self):
         for i in range(self.num_rows):
             for j in range(self.num_cols):
