@@ -72,6 +72,11 @@ class Maze:
             self._cells[i][j].has_right_Wall = False
             self._cells[r][c].has_left_Wall = False
 
+    def reset_cells_visited(self):
+        for i in range(self.num_rows):
+            for j in range(self.num_cols):
+                self._cells[i][j].visited = False
+
     def animate(self):
         if self.win is None:
             return
